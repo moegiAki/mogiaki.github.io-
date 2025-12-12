@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>診断モーダル</title>
+</head>
+<body>
+<style>
+  /* 診断ボタンのデザイン */
+  .diag-open-btn {
+    display: inline-block;
+    background-color: #ff6b6b;
+    color: #fff;
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+    text-decoration: none;
+  }
+  .diag-open-btn:hover {
+    background-color: #ff5252;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+  }
+
+  /* モーダル全体の背景 */
+  .diag-modal {
+    display: none; /* 初期状態は非表示 */
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+    backdrop-filter: blur(2px);
+  }
+
+  /* モーダルの中身 */
+  .diag-content {
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    animation: diagFadeIn 0.3s;
+  }
+
+  @keyframes diagFadeIn {
+    from {opacity: 0; transform: translateY(-20px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+
+  /* ヘッダー */
+  .diag-header {
+    background: #f0f4f8;
+    padding: 20px;
+    border-radius: 12px 12px 0 0;
+    text-align: center;
+    border-bottom: 2px solid #e2e8f0;
+  }
+  .diag-header h3 {
+    margin: 0;
+    color: #2d3748;
+    font-size: 1.5em;
+  }
+
+  /* 閉じるボタン */
+  .diag-close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 20px;
+  }
+  .diag-close:hover { color: #000; }
+
+  /* フォーム部分 */
+  .diag-body {
+    padding: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  /* 質問ブロック */
+  .question-block {
+    margin-bottom: 25px;
+    border-bottom: 1px dashed #e2e8f0;
+    padding-bottom: 15px;
+  }
+  .question-title {
+    font-weight: bold;
+    color: #4a5568;
+    margin-bottom: 10px;
+    display: block;
+    background: #e6fffa;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border-left: 5px solid #38b2ac;
+  }
+  .diag-label {
+    display: block;
+    margin: 8px 0;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background 0.2s;
+  }
+  .diag-label:hover {
+    background-color: #f7fafc;
+  }
+  .diag-label input {
+    margin-right: 8px;
+    transform: scale(1.2);
+  }
+
+  /* ボタンエリア */
+  .diag-footer {
+    padding: 20px;
+    text-align: center;
+    border-top: 1px solid #e2e8f0;
+  }
+  .diag-submit-btn {
+    background-color: #38b2ac;
+    color: white;
+    padding: 12px 40px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .diag-submit-btn:hover { background-color: #319795; }
+
+  /* 結果表示エリア */
+  #diagResult {
+    display: none;
+    text-align: center;
+    padding: 20px;
+  }
+  .result-title {
+    font-size: 1.2em;
+    color: #718096;
+    margin-bottom: 10px;
+  }
+  .result-name {
+    font-size: 2em;
+    color: #e53e3e;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  .result-desc {
+    background: #fff5f5;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: left;
+    margin-bottom: 20px;
+  }
+  .retry-btn {
+    background: #718096;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  /* 1問ずつ表示するためのステップ */
+  .question-step { display: none; }
+  .question-step.active { display: block; }
+
+  /* ナビゲーション */
+  .diag-nav {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .diag-prev-btn {
+    background-color: #718096;
+    color: white;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .diag-prev-btn:hover { background-color: #4a5568; }
+
+  .diag-progress {
+    margin-bottom: 14px;
+    text-align: center;
+    color: #4a5568;
+    font-weight: bold;
+  }
+
+</style>
+
+<div style="text-align:center; margin: 30px 0;">
+  <button id="openDiagBtn" class="diag-open-btn">✨ あなたに合うツールを診断する</button>
+</div>
+
+<div id="diagModal" class="diag-modal">
+  <div class="diag-content">
+    <div class="diag-header">
+      <span class="diag-close" id="closeDiagBtn">&times;</span>
+      <h3>クリエイティブ診断</h3>
+    </div>
+
+    <div id="diagFormContainer">
+      <form id="diagForm" class="diag-body">
+
+  <div class="diag-progress" id="diagProgress">Q1 / 7</div>
+
+  <div class="question-step" data-step="1">
+    <div class="question-block">
+      <span class="question-title">Q1. 言われたことがある、言われたい言葉は？</span>
+      <label class="diag-label"><input type="radio" name="q1" value="A" required> ゲームみたいでおもしろいね！</label>
+      <label class="diag-label"><input type="radio" name="q1" value="B"> なんで問題とくのはやいの!?</label>
+      <label class="diag-label"><input type="radio" name="q1" value="C"> そのデザインかわいいね！</label>
+      <label class="diag-label"><input type="radio" name="q1" value="D"> その発想どこから!?</label>
+    </div>
+  </div>
+
+  <div class="question-step" data-step="2">
+    <div class="question-block">
+      <span class="question-title">Q2. 自由研究をするとしたら？</span>
+      <label class="diag-label"><input type="radio" name="q2" value="A" required> ゲームをつくりたい！</label>
+      <label class="diag-label"><input type="radio" name="q2" value="B"> 写真を取ったりやイラストを描いたりしたい！</label>
+      <label class="diag-label"><input type="radio" name="q2" value="C"> 立体模型やミニチュアを作りたい！</label>
+      <label class="diag-label"><input type="radio" name="q2" value="D"> だれにもそうぞうできない作品を作りたい</label>
+    </div>
+  </div>
+
+  <div class="question-step" data-step="3">
+    <div class="question-block">
+      <span class="question-title">Q3. ゲームをつくるとしたら、どんなゲームを作りたい？</span>
+      <label class="diag-label"><input type="radio" name="q3" value="A" required> 広い世界を探検 & 自由に作ることができるゲーム</label>
+      <label class="diag-label"><input type="radio" name="q3" value="B"> なるほど！ってなるパズルなどの仕組みのゲーム</label>
+      <label class="diag-label"><input type="radio" name="q3" value="C"> キャラクターの服や髪型をカスタムできるゲーム</label>
+      <label class="diag-label"><input type="radio" name="q3" value="D"> 背景や絵がかわいいゲーム</label>
+    </div>
+  </div>
+
+  <div class="question-step" data-step="4">
+    <div class="question-block">
+      <span class="question-title">Q4. 何かを作るとき最初に考えるのは？</span>
+      <label class="diag-label"><input type="radio" name="q4" value="A" required> こんな動きにしたい！</label>
+      <label class="diag-label"><input type="radio" name="q4" value="B"> 見た目をもっとかわいくしたい！</label>
+      <label class="diag-label"><input type="radio" name="q4" value="C"> 立体でどう表現しよう！</label>
+      <label class="diag-label"><input type="radio" name="q4" value="D"> あれもこれも！アイデアがたくさん！</label>
+    </div>
+  </div>
+
+  <div class="question-step" data-step="5">
+    <div class="question-block">
+      <span class="question-title">Q5. 自由に1時間パソコンを使えるなら何する？？</span>
+      <label class="diag-label"><input type="radio" name="q5" value="A" required> ゲームステージづくり</label>
+      <label class="diag-label"><input type="radio" name="q5" value="B"> ボタンで動く仕組みを作る</label>
+      <label class="diag-label"><input type="radio" name="q5" value="C"> アバターの服・髪型にこだわる</label>
+      <label class="diag-label"><input type="radio" name="q5" value="D"> おしゃれなカード/ポスター制作</label>
+    </div>
+  </div>
+
+  <div class="question-step" data-step="6">
+    <div class="question-block">
+      <span class="question-title">Q6. 好きな教科は？</span>
+      <label class="diag-label"><input type="radio" name="q6" value="A" required> 図工/美術</label>
+      <label class="diag-label"><input type="radio" name="q6" value="B"> 算数</label>
+      <label class="diag-label"><input type="radio" name="q6" value="C"> 国語/社会</label>
+      <label class="diag-label"><input type="radio" name="q6" value="D"> 理科</label>
+    </div>
+  </div>
+
+  <div class="question-step" data-step="7">
+    <div class="question-block">
+      <span class="question-title">Q7. 作品で大事にしたいのは？</span>
+      <label class="diag-label"><input type="radio" name="q7" value="A" required> デザインのかわいさ</label>
+      <label class="diag-label"><input type="radio" name="q7" value="B"> 動きやルール</label>
+      <label class="diag-label"><input type="radio" name="q7" value="C"> 立体の形やバランス</label>
+      <label class="diag-label"><input type="radio" name="q7" value="D"> おもしろいアイデア</label>
+    </div>
+  </div>
+
+  <div class="diag-footer">
+    <div class="diag-nav">
+      <button type="button" class="diag-prev-btn" id="prevBtn">戻る</button>
+      <button type="button" class="diag-submit-btn" id="nextBtn">次へ</button>
+      <button type="submit" class="diag-submit-btn" id="submitBtn">診断結果を見る</button>
+    </div>
+  </div>
+</form>
+    </div>
+
+    <div id="diagResult">
+      <div class="result-title">あなたにおすすめなのは…</div>
+      <div id="resultName" class="result-name"></div>
+      <div id="resultDesc" class="result-desc"></div>
+      <button id="retryBtn" class="retry-btn">もう一度診断する</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  (function(){
+    // 配点データ
+    const scoreData = {
+      q1: {
+        A: {roblox:5, scratch:4, canva:1, tinkercad:1, vroid:1},
+        B: {roblox:4, scratch:5, canva:1, tinkercad:1, vroid:1},
+        C: {roblox:1, scratch:1, canva:5, tinkercad:3, vroid:4},
+        D: {roblox:3, scratch:3, canva:4, tinkercad:4, vroid:3}
+      },
+      q2: {
+        A: {roblox:5, scratch:4, canva:1, tinkercad:1, vroid:2},
+        B: {roblox:1, scratch:1, canva:5, tinkercad:2, vroid:2},
+        C: {roblox:1, scratch:1, canva:2, tinkercad:5, vroid:2},
+        D: {roblox:3, scratch:3, canva:3, tinkercad:2, vroid:4}
+      },
+      q3: {
+        A: {roblox:5, scratch:3, canva:1, tinkercad:2, vroid:2},
+        B: {roblox:3, scratch:5, canva:1, tinkercad:2, vroid:1},
+        C: {roblox:3, scratch:2, canva:1, tinkercad:1, vroid:5},
+        D: {roblox:1, scratch:2, canva:5, tinkercad:1, vroid:3}
+      },
+      q4: {
+        A: {roblox:4, scratch:5, canva:1, tinkercad:2, vroid:1},
+        B: {roblox:1, scratch:1, canva:5, tinkercad:2, vroid:4},
+        C: {roblox:1, scratch:1, canva:2, tinkercad:5, vroid:2},
+        D: {roblox:3, scratch:3, canva:3, tinkercad:2, vroid:4}
+      },
+      q5: {
+        A: {roblox:5, scratch:4, canva:1, tinkercad:1, vroid:2},
+        B: {roblox:4, scratch:5, canva:1, tinkercad:1, vroid:1},
+        C: {roblox:2, scratch:1, canva:1, tinkercad:1, vroid:5},
+        D: {roblox:1, scratch:1, canva:5, tinkercad:2, vroid:3}
+      },
+      q6: {
+        A: {roblox:1, scratch:1, canva:4, tinkercad:3, vroid:5},
+        B: {roblox:3, scratch:5, canva:1, tinkercad:2, vroid:1},
+        C: {roblox:2, scratch:3, canva:3, tinkercad:2, vroid:3},
+        D: {roblox:4, scratch:5, canva:1, tinkercad:3, vroid:1}
+      },
+      q7: {
+        A: {roblox:1, scratch:1, canva:5, tinkercad:2, vroid:4},
+        B: {roblox:4, scratch:5, canva:1, tinkercad:2, vroid:1},
+        C: {roblox:1, scratch:1, canva:2, tinkercad:5, vroid:2},
+        D: {roblox:4, scratch:3, canva:3, tinkercad:2, vroid:3}
+      }
+    };
+
+    // 結果情報
+    const resultInfo = {
+      roblox: { name: "Roblox Studio", desc: "3Dの世界で本格的なゲーム作り！プログラミングとワールド制作の両方が楽しめます。" },
+      scratch: { name: "Scratch", desc: "ブロックをつなげて直感的にプログラミング！ゲームやアニメーション作りの基礎に最適。" },
+      canva: { name: "Canva", desc: "デザインセンスを爆発させよう！ポスター、カード、スライドなどおしゃれな作品が作れます。" },
+      tinkercad: { name: "Tinkercad", desc: "3Dモデリングや回路設計に挑戦！積み木感覚で立体作品を作れます。" },
+      vroid: { name: "VRoid Studio", desc: "自分だけの3Dアバターを作ろう！髪型や服を自由にデザインしてVTuberデビューも？" }
+    };
+
+    const modal = document.getElementById('diagModal');
+    const openBtn = document.getElementById('openDiagBtn');
+    const closeBtn = document.getElementById('closeDiagBtn');
+
+    const form = document.getElementById('diagForm');
+    const formContainer = document.getElementById('diagFormContainer');
+    const resultBox = document.getElementById('diagResult');
+    const retryBtn = document.getElementById('retryBtn');
+
+    // ウィザード要素
+    const steps = Array.from(document.querySelectorAll('.question-step'));
+    const progressEl = document.getElementById('diagProgress');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const submitBtn = document.getElementById('submitBtn');
+
+    const totalSteps = steps.length;
+    let currentStep = 1;
+
+    // モーダル開閉
+    openBtn.addEventListener('click', () => {
+      modal.style.display = 'block';
+      goToStep(1, true);
+    });
+    closeBtn.addEventListener('click', () => { modal.style.display = 'none'; resetDiag(); });
+    window.addEventListener('click', (e) => { if (e.target == modal) { modal.style.display = 'none'; resetDiag(); } });
+
+    // 次へ
+    nextBtn.addEventListener('click', () => {
+      if (!isAnswered(currentStep)) {
+        alert('この質問に回答してから「次へ」を押してください。');
+        return;
+      }
+      goToStep(currentStep + 1, true);
+    });
+
+    // 戻る
+    prevBtn.addEventListener('click', () => {
+      goToStep(currentStep - 1, true);
+    });
+
+    // 診断実行（最後のsubmitのみ）
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      if (!isAnswered(currentStep)) {
+        alert('この質問に回答してから「診断結果を見る」を押してください。');
+        return;
+      }
+
+      let totalScores = { roblox: 0, scratch: 0, canva: 0, tinkercad: 0, vroid: 0 };
+      const formData = new FormData(form);
+
+      for (let [key, value] of formData.entries()) {
+        if (scoreData[key] && scoreData[key][value]) {
+          const points = scoreData[key][value];
+          for (let tool in points) totalScores[tool] += points[tool];
+        }
+      }
+
+      let maxScore = -1;
+      let bestTool = '';
+      for (let tool in totalScores) {
+        if (totalScores[tool] > maxScore) {
+          maxScore = totalScores[tool];
+          bestTool = tool;
+        }
+      }
+
+      showResult(bestTool);
+    });
+
+    function isAnswered(stepNum) {
+      const qName = 'q' + stepNum;
+      return !!form.querySelector(`input[name="${qName}"]:checked`);
+    }
+
+    function goToStep(stepNum, scrollTop) {
+      if (stepNum < 1) stepNum = 1;
+      if (stepNum > totalSteps) stepNum = totalSteps;
+      currentStep = stepNum;
+
+      steps.forEach(s => s.classList.remove('active'));
+      const active = steps.find(s => Number(s.dataset.step) === currentStep);
+      if (active) active.classList.add('active');
+
+      // 進捗
+      if (progressEl) progressEl.textContent = `Q${currentStep} / ${totalSteps}`;
+
+      // ボタン表示制御
+      prevBtn.style.display = (currentStep === 1) ? 'none' : 'inline-block';
+      nextBtn.style.display = (currentStep === totalSteps) ? 'none' : 'inline-block';
+      submitBtn.style.display = (currentStep === totalSteps) ? 'inline-block' : 'none';
+
+      if (scrollTop) {
+        const body = document.querySelector('.diag-body');
+        if (body) body.scrollTop = 0;
+      }
+    }
+
+    function showResult(toolKey) {
+      formContainer.style.display = 'none';
+      resultBox.style.display = 'block';
+
+      const info = resultInfo[toolKey];
+      document.getElementById('resultName').textContent = info.name;
+      document.getElementById('resultDesc').textContent = info.desc;
+    }
+
+    // リセット
+    retryBtn.addEventListener('click', resetDiag);
+
+    function resetDiag() {
+      if (form) form.reset();
+      resultBox.style.display = 'none';
+      formContainer.style.display = 'block';
+      goToStep(1, true);
+    }
+
+    // 初期表示
+    goToStep(1, false);
+  })();
+</script>
+</body>
+</html>
