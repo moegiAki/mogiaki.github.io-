@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>そらぱれ 作品展示ページ</title>
+  <style>
+    :root {
+      --main-color: #7ec8f5;
+      --main-deep: #5aaee6;
+      --sub-color: #f3fbff;
+      --accent-color: #ffd36e;
+      --accent-pink: #ffe7ef;
+      --accent-green: #e8f7dc;
+      --text-color: #3f4a5a;
+      --bg-color: #f9fdff;
+      --card-color: #ffffff;
+      --border-color: #d9eefb;
+      --shadow-soft: 0 10px 24px rgba(126, 200, 245, 0.14);
+      --shadow-hover: 0 14px 28px rgba(126, 200, 245, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+      color: var(--text-color);
+      background:
+        radial-gradient(circle at 10% 10%, rgba(255,255,255,0.95) 0 90px, transparent 91px),
+        radial-gradient(circle at 90% 12%, rgba(255,255,255,0.85) 0 70px, transparent 71px),
+        linear-gradient(180deg, #eefaff 0%, #ffffff 28%, #f9fdff 100%);
+      line-height: 1.8;
+    }
+
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e2f2fb;
+    }
+
+    .top-nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      font-weight: 700;
+      color: #4c7590;
+      letter-spacing: 0.03em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #54738a;
+      background: #f4fbff;
+      border: 1px solid #deeff9;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.92rem;
+    }
+
+    header {
+      color: #2e5672;
+      text-align: center;
+      padding: 74px 20px 64px;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 15% 18%, rgba(255,255,255,0.9) 0 90px, transparent 91px),
+        radial-gradient(circle at 82% 20%, rgba(255,255,255,0.85) 0 72px, transparent 73px),
+        linear-gradient(135deg, #8dd8ff 0%, #b5e7ff 45%, #f4fbff 100%);
+    }
+
+    .cloud {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.88);
+      border-radius: 999px;
+      filter: blur(0.5px);
+      z-index: 0;
+    }
+
+    .cloud::before,
+    .cloud::after {
+      content: "";
+      position: absolute;
+      background: rgba(255, 255, 255, 0.88);
+      border-radius: 50%;
+    }
+
+    .cloud1 {
+      width: 150px;
+      height: 46px;
+      top: 44px;
+      left: 7%;
+    }
+
+    .cloud1::before {
+      width: 58px;
+      height: 58px;
+      left: 18px;
+      top: -22px;
+    }
+
+    .cloud1::after {
+      width: 72px;
+      height: 72px;
+      right: 18px;
+      top: -30px;
+    }
+
+    .cloud2 {
+      width: 180px;
+      height: 54px;
+      top: 92px;
+      right: 9%;
+    }
+
+    .cloud2::before {
+      width: 64px;
+      height: 64px;
+      left: 24px;
+      top: -24px;
+    }
+
+    .cloud2::after {
+      width: 78px;
+      height: 78px;
+      right: 22px;
+      top: -33px;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.75);
+      color: #50748c;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255,255,255,0.9);
+    }
+
+    header h1 {
+      margin: 0 0 14px;
+      font-size: 2.3rem;
+      letter-spacing: 0.04em;
+    }
+
+    header p {
+      margin: 0 auto;
+      font-size: 1.05rem;
+      max-width: 760px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 36px 16px 52px;
+    }
+
+    section {
+      margin-bottom: 46px;
+      scroll-margin-top: 88px;
+    }
+
+    h2 {
+      font-size: 1.55rem;
+      border-left: 8px solid var(--main-color);
+      padding-left: 12px;
+      margin-bottom: 16px;
+      color: #3e6c89;
+    }
+
+    h3 {
+      color: #42667d;
+    }
+
+    .message-box,
+    .guide-card,
+    .course-box,
+    .support-box {
+      background-color: white;
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-color);
+    }
+
+    .intro-lead {
+      font-size: 1.05rem;
+    }
+
+    .works-grid,
+    .learning-points,
+    .palette-values,
+    .guide-grid,
+    .course-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .works-grid {
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .work-card {
+      background-color: var(--card-color);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-color);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .work-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .work-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+      background: #dfefff;
+    }
+
+    .work-content {
+      padding: 16px;
+    }
+
+    .work-content h3 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-size: 1.2rem;
+    }
+
+    .tag {
+      display: inline-block;
+      background-color: var(--sub-color);
+      color: var(--main-deep);
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      margin-bottom: 10px;
+      border: 1px solid #d6eefc;
+    }
+
+    .button-row,
+    .hero-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .button {
+      display: inline-block;
+      text-decoration: none;
+      background-color: var(--main-color);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(126, 200, 245, 0.2);
+      border: none;
+    }
+
+    .button.sub {
+      background-color: var(--accent-color);
+      color: #584616;
+    }
+
+    .button.soft {
+      background-color: var(--accent-pink);
+      color: #7b5a69;
+    }
+
+    .button.green {
+      background-color: var(--accent-green);
+      color: #52703e;
+    }
+
+    .point-card,
+    .guide-card,
+    .course-box {
+      background-color: white;
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 8px 20px rgba(126, 200, 245, 0.12);
+      border: 1px solid var(--border-color);
+    }
+
+    .support-box {
+      background: linear-gradient(135deg, #f3fbff 0%, #fffdf5 100%);
+      border: 1px solid #e8f3cf;
+    }
+
+    .mini-label {
+      display: inline-block;
+      font-size: 0.82rem;
+      color: #5e7a90;
+      background: #f6fbff;
+      border: 1px solid #dceef8;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+
+    .course-box p:last-child,
+    .guide-card p:last-child,
+    .point-card p:last-child {
+      margin-bottom: 0;
+    }
+
+    footer {
+      text-align: center;
+      padding: 28px 24px;
+      background: linear-gradient(180deg, #eef9ff 0%, #f8fdff 100%);
+      font-size: 0.92rem;
+      color: #5d7688;
+      border-top: 1px solid #dff1fb;
+    }
+
+    iframe {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: none;
+      border-radius: 16px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 700px) {
+      header {
+        padding-top: 64px;
+      }
+
+      header h1 {
+        font-size: 1.8rem;
+      }
+
+      h2 {
+        font-size: 1.28rem;
+      }
+
+      .top-nav-inner {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <div class="brand">そらいろぱれっと</div>
+      <div class="nav-links">
+        <a href="#about">このページについて</a>
+        <a href="#works">みんなの作品</a>
+      </div>
+    </div>
+  </nav>
+  <!-- =========================
+       1. ページのいちばん上
+       タイトルや説明を書く場所
+  ========================= -->
+  <header>
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+    <div class="hero-inner">
+      <div class="hero-badge">子どもたちの「好き」と「挑戦」が広がる場所</div>
+      <h1>そらいろ 作品ギャラリー <br><small>(プログラミングチーム)</small></h1>
+      <p>
+        ひとりひとりの「やってみたい」から生まれた作品たちを集めました。<br />
+        完成した作品だけでなく、工夫したことや育っている力も、いっしょに感じてもらえたらうれしいです。
+      </p>
+      <div class="hero-buttons">
+        <a class="button" href="#works">作品を見る</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- =========================
+         2. このページについて
+         講座の説明やメッセージを書く場所
+    ========================= -->
+    <section id="about">
+      <h2>このページについて</h2>
+      <div class="message-box intro-lead">
+        <p>
+          このページでは、講座の中で生まれた子どもたちの作品を紹介しています。<br />
+          ゲーム、動画、デジタルアートなど、それぞれの「好き」や「やってみたい」が形になりました。
+        </p>
+        <p>
+          そらいろぱれっとでは、デジタルスキルだけでなく、
+          <strong>自分で選ぶこと・伝えること・挑戦すること</strong>も大切にしています。
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>そらいろぱれっとらしさ</h2>
+      <div class="palette-values">
+        <div class="point-card">
+          <h3>やりたいを大切に</h3>
+          <p>子ども自身が「これを作りたい」と思えた気持ちを出発点にしています。</p>
+        </div>
+        <div class="point-card">
+          <h3>安心できる雰囲気</h3>
+          <p>まちがえても大丈夫。安心して試せる環境の中で、少しずつ力を育てます。</p>
+        </div>
+        <div class="point-card">
+          <h3>作品も成長も見える</h3>
+          <p>完成した作品だけでなく、工夫したことや考えたことも大切な学びとして伝えます。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================
+         3. 作品一覧
+         作品カードを増やせば作品を追加できる
+    ========================= -->
+    <section id="works">
+      <h2>みんなの作品</h2>
+      <div class="works-grid">
+
+        <!-- 作品カード ここから -->
+        <article class="work-card">
+          <!-- 画像を変えたいときは src="画像の名前" を変える -->
+          <img src="https://placehold.jp/600x400.png?text=%E4%BD%9C%E5%93%81%E7%94%BB%E5%83%8F1" alt="作品1の画像" />
+          <div class="work-content">
+            <div class="tag">Scratch作品</div>
+            <h3>タイトル</h3>
+            <p><strong>作った人：</strong>じゅん</p>
+            <p><strong>がんばったところ：</strong>ジャンプの動きと、遊びやすいルール作りを工夫しました。</p>
+            <p>
+              ねこがジャンプしてアイテムを集めるゲームです。
+              当たり判定やスコア表示を工夫しました。
+            </p>
+            <div class="button-row">
+              <a class="button sub" href="#scratch1">作品を見る</a>
+            </div>
+          </div>
+        </article>
+        <!-- 作品カード ここまで -->
+
+        <article class="work-card">
+          <img src="https://placehold.jp/600x400.png?text=%E4%BD%9C%E5%93%81%E7%94%BB%E5%83%8F2" alt="作品2の画像" />
+          <div class="work-content">
+            <div class="tag">Scratch作品</div>
+            <h3>ぼーるをみきわけよ</h3>
+            <p><strong>作った人：</strong>ゆうへい</p>
+            <p><strong>がんばったところ：</strong>見やすい場面の切り替えと、伝わりやすい説明を意識しました。</p>
+            <p>
+              自分で考えた未来のまちを動画で紹介した作品です。
+              音楽や場面の切り替えにもこだわりました。
+            </p>
+            <div class="button-row">
+              <a class="button sub" href="#scratch2">作品を見る</a>
+            </div>
+          </div>
+        </article>
+        
+        <article class="work-card">
+          <img src="https://placehold.jp/600x400.png?text=%E4%BD%9C%E5%93%81%E7%94%BB%E5%83%8F2" alt="作品2の画像" />
+          <div class="work-content">
+            <div class="tag">Scratch作品</div>
+            <h3>ドリルゲーム</h3>
+            <p><strong>作った人：</strong>ぜん</p>
+            <p><strong>がんばったところ：</strong>見やすい場面の切り替えと、伝わりやすい説明を意識しました。</p>
+            <p>
+              自分で考えた未来のまちを動画で紹介した作品です。
+              音楽や場面の切り替えにもこだわりました。
+            </p>
+            <div class="button-row">
+              <a class="button sub" href="#scratch3">作品を見る</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="work-card">
+          <img src="https://placehold.jp/600x400.png?text=%E4%BD%9C%E5%93%81%E7%94%BB%E5%83%8F3" alt="作品3の画像" />
+          <div class="work-content">
+            <div class="tag">Scratch作品</div>
+            <h3>とうほうアスレチック</h3>
+            <p><strong>作った人：</strong>あゆむ</p>
+            <p><strong>がんばったところ：</strong>色の組み合わせと、光の表現にこだわって仕上げました。</p>
+            <p>
+              宇宙をテーマに色や形を工夫して作った作品です。
+              背景と光の表現にチャレンジしました。
+            </p>
+            <div class="button-row">
+              <a class="button sub" href="#scratch4">作品を見る</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- =========================
+         4. 動画コーナー
+         YouTubeの埋め込みなどを置ける
+    ========================= -->
+    <section>
+      <h2>作品を見てみよう</h2>
+
+      <div class="message-box" id="scratch1">
+        <h3>タイトル</h3>
+        <p>ここに作品紹介動画をのせることができます。</p>
+        <!-- YouTubeのURLを埋め込み用URLに変えて入れる -->
+        <iframe src="https://scratch.mit.edu/projects/1270057268/embed" allowtransparency="true" width="485" height="402" frameborder="0" scrolling="no" allowfullscreen></iframe>
+        <a class="button sub" target="_blank" href="https://scratch.mit.edu/projects/1127520027">Scratchのゲームへ</a>
+        <p>作成者：じゅん<p>
+        <p>作品の説明や見どころ</p>
+      </div>
+
+      <br />
+
+      <div class="message-box" id="scratch2">
+        <h3>タイトル</h3>
+        <p>作品の説明や見どころもここに書けます。</p>
+        <iframe src="https://scratch.mit.edu/projects/1284468143/embed" allowtransparency="true" width="485" height="402" frameborder="0" scrolling="no" allowfullscreen></iframe>
+        <a class="button sub" target="_blank" href="https://scratch.mit.edu/projects/1127520027">Scratchのゲームへ</a>
+        <p>作成者：ゆうへい<p>
+        <p>作品の説明や見どころ</p>
+      </div>
+      
+      
+      <br />
+
+      <div class="message-box" id="scratch3">
+        <h3>ドリルゲーム</h3>
+        <iframe src="https://scratch.mit.edu/projects/1127520027/embed" allowtransparency="true" width="485" height="402" frameborder="0" scrolling="no" allowfullscreen></iframe>
+        <a class="button sub" target="_blank" href="https://scratch.mit.edu/projects/1127520027">Scratchのゲームへ</a>
+        <p>作成者：ぜん<p>
+        <p>作品の説明や見どころ</p>
+      </div>
+      
+      
+      <br />
+
+      <div class="message-box" id="scratch4">
+        <h3>とうほうアスレチック</h3>
+
+        <iframe src="https://scratch.mit.edu/projects/1127520027/embed" allowtransparency="true" width="485" height="402" frameborder="0" scrolling="no" allowfullscreen></iframe>
+        <a class="button sub" target="_blank" href="https://scratch.mit.edu/projects/1127520027">Scratchのゲームへ</a>
+        <p>作成者：あゆむ<p>
+        <p>〈内容〉<br />
+			簡易的なプラットフォーマーです✨<br />
+			とうほうの主人公、博麗霊夢と霧雨魔理沙が住む「幻想郷」<br />
+			の世界戦でアスレチックをしましょう！<br />
+			しかし幻想郷にないといけないような「重要なワード」が、<br />
+			封獣ぬえの「正体を隠す程度の能力」によって隠されてしまった!?<br />
+			ワールドのあちらこちらに散らばるUFOをたくさん集めて<br />
+			そのワードを当ててみよう！<br />
+			〈感想〉<br />
+			シンプルに楽しかったです✨<br />
+			自分で考えてプログラムを組み、やりこみ要素も考え、<br />
+			試運転して、バグも確認…やることは多かったけれど、<br />
+			それ相応の完成が出来てよかったです！<br />
+			</p>
+      </div>
+      
+    </section>
+
+    <!-- =========================
+         5. 学びポイント
+         見に来た人に講座の良さを伝える場所
+    ========================= -->
+    <section id="growth">
+      <h2>この講座で育っている力</h2>
+      <div class="learning-points">
+        <div class="point-card">
+          <h3>アイデアを形にする力</h3>
+          <p>自分の思いつきや想像を、作品として表現する力を育てます。</p>
+        </div>
+        <div class="point-card">
+          <h3>順番に考える力</h3>
+          <p>作品づくりを通して、手順を整理しながら進める力を身につけます。</p>
+        </div>
+        <div class="point-card">
+          <h3>伝える力</h3>
+          <p>見てもらう相手を意識して、説明したり紹介したりする力を高めます。</p>
+        </div>
+        <div class="point-card">
+          <h3>自分で選ぶ力</h3>
+          <p>「何を作るか」「どう作るか」を自分で決める経験が、自信につながります。</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>あたたかく見守ってください</h2>
+      <div class="support-box">
+        <p>
+          子どもたちは、作品を完成させるだけでなく、試行錯誤しながら少しずつ前に進んでいます。<br />
+          ぜひ作品そのものだけでなく、そこに込めた思いや工夫、チャレンジにも目を向けてみてください。
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© そらいろぱれっと / 作品ギャラリー</p>
+    <p>ひとりひとりの「好き」と「挑戦」を、これからも大切に育てていきます。</p>
+  </footer>
+</body>
+</html>
